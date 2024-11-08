@@ -1,0 +1,6 @@
+@Hx.Abp.WeekDay_HostAddress = http://localhost:5150
+
+GET {{Hx.Abp.WeekDay_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
