@@ -1,0 +1,45 @@
+name: Multi-package NuGet Hx.Abp.WeekDay
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.104'
+
+    - name: Build and pack NuGet packages
+      run: |
+        version=$(echo "${{ github.event.release.tag_name }}" | cut -c 2-)
+        echo "Setting version to $version"
+        dotnet build Hx.Abp.WeekDay.Application/Hx.Abp.WeekDay.Application.csproj -c Release
+        dotnet pack Hx.Abp.WeekDay.Application/Hx.Abp.WeekDay.Application.csproj -c Release -o ./Hx.Abp.WeekDay.Application /p:PackageVersion=$version
+        dotnet build Hx.Abp.WeekDay.Application.Contracts/Hx.Abp.WeekDay.Application.Contracts.csproj -c Release
+        dotnet pack Hx.Abp.WeekDay.Application.Contracts/Hx.Abp.WeekDay.Application.Contracts.csproj -c Release -o ./Hx.Abp.WeekDay.Application.Contracts /p:PackageVersion=$version
+        dotnet build Hx.Abp.WeekDay.Domain/Hx.Abp.WeekDay.Domain.csproj -c Release
+        dotnet pack Hx.Abp.WeekDay.Domain/Hx.Abp.WeekDay.Domain.csproj -c Release -o ./Hx.Abp.WeekDay.Domain /p:PackageVersion=$version
+        dotnet build Hx.Abp.WeekDay.Domain.Shared/Hx.Abp.WeekDay.Domain.Shared.csproj -c Release
+        dotnet pack Hx.Abp.WeekDay.Domain.Shared/Hx.Abp.WeekDay.Domain.Shared.csproj -c Release -o ./Hx.Abp.WeekDay.Domain.Shared /p:PackageVersion=$version
+        dotnet build Hx.Abp.WeekDay.EntityFrameworkCore/Hx.Abp.WeekDay.EntityFrameworkCore.csproj -c Release
+        dotnet pack Hx.Abp.WeekDay.EntityFrameworkCore/Hx.Abp.WeekDay.EntityFrameworkCore.csproj -c Release -o ./Hx.Abp.WeekDay.EntityFrameworkCore /p:PackageVersion=$version
+        cp ./Hx.Abp.WeekDay.Application/*.nupkg $GITHUB_WORKSPACE
+        cp ./Hx.Abp.WeekDay.Application.Contracts/*.nupkg $GITHUB_WORKSPACE
+        cp ./Hx.Abp.WeekDay.Domain/*.nupkg $GITHUB_WORKSPACE
+        cp ./Hx.Abp.WeekDay.Domain.Shared/*.nupkg $GITHUB_WORKSPACE
+        cp ./Hx.Abp.WeekDay.EntityFrameworkCore/*.nupkg $GITHUB_WORKSPACE
+    - name: Push NuGet packages
+      run: |
+       nuget push ./Hx.Abp.WeekDay.Application/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+       nuget push ./Hx.Abp.WeekDay.Application.Contracts/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+       nuget push ./Hx.Abp.WeekDay.Domain/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+       nuget push ./Hx.Abp.WeekDay.Domain.Shared/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
+       nuget push ./Hx.Abp.WeekDay.EntityFrameworkCore/*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey ${{ secrets.NUGET_API_KEY }} -SkipDuplicate
