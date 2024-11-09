@@ -13,7 +13,7 @@ namespace Hx.Abp.WeekDay.Domain
         /// <returns></returns>
         Task<List<DateTime>> GetWeekDays(int span, bool notIncludedHolidy = true, string dateTimeFormat = "d");
         /// <summary>
-        /// 创建工作日
+        /// 创建工作日调整
         /// </summary>
         /// <param name="date"></param>
         /// <param name="description"></param>
@@ -30,10 +30,17 @@ namespace Hx.Abp.WeekDay.Domain
         /// <returns></returns>
         Task<bool> ModifyDayStatusAsync(DateTime date);
         /// <summary>
-        /// 通过年份获取工作日
+        /// 通过年份获取节假日
         /// </summary>
         /// <param name="year">年份</param>
         /// <returns></returns>
-        Task<List<WorkdayOrHlidayDo>> GetWeekDaysByYearAsync(int year = 0);
+        Task<List<WorkdayOrHlidayDo>> GetHolidaysByYearAsync(int year = 0);
+        /// <summary>
+        /// 根据输入时间计算工作日截止时间
+        /// </summary>
+        /// <param name="time">输入时间</param>
+        /// <param name="span">时间跨度</param>
+        /// <returns></returns>
+        Task<DateTime> GetDeadlineTimeAsync(DateTime time, int span);
     }
 }

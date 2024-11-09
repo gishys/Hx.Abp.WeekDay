@@ -1,4 +1,5 @@
 ﻿using Hx.Abp.WeekDay.Domain.Shared;
+using System.Collections.Generic;
 using Volo.Abp;
 
 namespace Hx.Abp.WeekDay.Domain
@@ -12,7 +13,7 @@ namespace Hx.Abp.WeekDay.Domain
             _weekdayRepository = weekdayRepository;
         }
         /// <summary>
-        /// 创建工作日
+        /// 创建工作日调整
         /// </summary>
         /// <param name="date"></param>
         /// <param name="description"></param>
@@ -60,11 +61,11 @@ namespace Hx.Abp.WeekDay.Domain
             return true;
         }
         /// <summary>
-        /// 通过年份获取工作日
+        /// 通过年份获取节假日
         /// </summary>
         /// <param name="year">年份</param>
         /// <returns></returns>
-        public async Task<List<WorkdayOrHlidayDo>> GetWeekDaysByYearAsync(int year = 0)
+        public async Task<List<WorkdayOrHlidayDo>> GetHolidaysByYearAsync(int year = 0)
         {
             var list = new List<WorkdayOrHlidayDo>();
             year = year == 0 ? DateTime.Now.Year : year;
@@ -123,6 +124,29 @@ namespace Hx.Abp.WeekDay.Domain
                 addDay++;
             }
             return list;
+        }
+        /// <summary>
+        /// 根据输入时间计算工作日截止时间
+        /// </summary>
+        /// <param name="time">输入时间</param>
+        /// <param name="span">时间跨度</param>
+        /// <returns></returns>
+        public async Task<DateTime> GetDeadlineTimeAsync(DateTime time, int span)
+        {
+            var ajustmentList = await _weekdayRepository.GetAdjustmentByYearAsync(time.Year);
+            var days = span / 1440;
+            var currentDay = 0;
+            var sumDays = 0;
+            while (sumDays <= days)
+            {
+                var currentTime = time.AddDays(currentDay);
+                if (await IsWorkDayAsync(currentTime, ajustmentList))
+                {
+                    sumDays++;
+                }
+                currentDay++;
+            }
+            return time.AddDays(currentDay - 1).AddMinutes(span % 1440);
         }
         /// <summary>
         /// 判断是否为工作日

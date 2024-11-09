@@ -9,13 +9,13 @@ namespace Hx.Abp.WeekDay.Application
         private readonly IWeekdayManager _weekdayManager = weekdayManager;
 
         /// <summary>
-        /// 通过年份获取工作日
+        /// 通过年份获取节假日
         /// </summary>
         /// <param name="year"></param>
         /// <returns></returns>
-        public virtual async Task<List<WorkdayOrHlidayDto>> GetWeekDaysByYearAsync(int year = 0)
+        public virtual async Task<List<WorkdayOrHlidayDto>> GetHolidaysByYearAsync(int year = 0)
         {
-            return ObjectMapper.Map<List<WorkdayOrHlidayDo>, List<WorkdayOrHlidayDto>>(await _weekdayManager.GetWeekDaysByYearAsync(year));
+            return ObjectMapper.Map<List<WorkdayOrHlidayDo>, List<WorkdayOrHlidayDto>>(await _weekdayManager.GetHolidaysByYearAsync(year));
         }
         /// <summary>
         /// 修改工作日调整（1、增加工作日调整；2、删除工作日调整）
@@ -39,6 +39,16 @@ namespace Hx.Abp.WeekDay.Application
             WorkdayAdjustmentOrganization adjustmentOrganization = WorkdayAdjustmentOrganization.OwnOrganization)
         {
             return ObjectMapper.Map<Weekday, WeekdayDto>(await _weekdayManager.CreateAsync(date, description, adjustmentOrganization));
+        }
+        /// <summary>
+        /// 根据输入时间计算工作日截止时间
+        /// </summary>
+        /// <param name="time">输入时间</param>
+        /// <param name="span">时间跨度</param>
+        /// <returns></returns>
+        public virtual Task<DateTime> GetDeadlineTimeAsync(DateTime time, int span)
+        {
+            return _weekdayManager.GetDeadlineTimeAsync(time, span);
         }
     }
 }
